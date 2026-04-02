@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday! 🎂</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f, #ffecd2);
+      background-size: 400% 400%;
+      animation: bgShift 8s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 1.5rem;
+    }
+
+    @keyframes bgShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    @keyframes pop     { 0%{transform:scale(0)} 60%{transform:scale(1.25)} 100%{transform:scale(1)} }
+    @keyframes glow    { 0%,100%{text-shadow:0 0 8px #ff6b9d33} 50%{text-shadow:0 0 24px #ff6b9daa} }
+    @keyframes wiggle  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+    @keyframes shake   { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-8deg)} 40%{transform:rotate(8deg)} 60%{transform:rotate(-5deg)} 80%{transform:rotate(5deg)} }
+    @keyframes confettiFall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(700px) rotate(800deg);opacity:0} }
+
+    .card {
+      background: linear-gradient(150deg, #fff0f6, #fce4ec, #fdf6e3);
+      border-radius: 28px;
+      padding: 2.25rem 2rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      border: 1.5px solid #ffb3c8;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn .7s ease;
+      box-shadow: 0 12px 40px #ff6b9d22;
+    }
+
+    /* ── SPARKLES ── */
+    .sparkle { position: absolute; font-size: 16px; pointer-events: none; animation: float 3s ease-in-out infinite; }
+
+    /* ── STAGE TITLES ── */
+    .stage-title { font-size: 18px; font-weight: 700; color: #d63384; margin-bottom: 4px; }
+    .stage-sub   { font-size: 13px; color: #e91e8c99; margin-bottom: 1.25rem; }
+
+    /* ── INPUT ── */
+    .name-input {
+      width: 100%;
+      padding: 11px 18px;
+      border: 1.5px solid #ffb3c8;
+      border-radius: 50px;
+      font-size: 14px;
+      text-align: center;
+      outline: none;
+      background: white;
+      color: #5c2d6e;
+      margin-bottom: 1rem;
+    }
+    .name-input:focus { border-color: #e91e8c; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      background: linear-gradient(135deg, #ff6b9d, #e91e8c);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 11px 26px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 4px;
+      transition: opacity .15s, transform .15s;
+    }
+    .btn:hover  { opacity: .9; transform: scale(1.04); }
+    .btn.sec    { background: white; color: #e91e8c; border: 1.5px solid #ff6b9d; }
+
+    /* ── GAME AREA ── */
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 230px;
+      background: white;
+      border-radius: 16px;
+      border: 1.5px solid #ffcce0;
+      overflow: hidden;
+      margin-bottom: .9rem;
+      cursor: crosshair;
+    }
+    .dodge-btn {
+      position: absolute;
+      background: linear-gradient(135deg, #ff6b9d, #e91e8c);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      animation: wiggle 2s ease-in-out infinite;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-bar  { height: 8px; background: #ffe0ee; border-radius: 50px; margin-bottom: .6rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b9d, #e91e8c); border-radius: 50px; transition: width .3s ease; }
+    .score-txt     { font-size: 13px; color: #e91e8c; margin-bottom: 1rem; }
+
+    /* ── TAUNT ── */
+    .taunt { font-size: 13px; color: #ff6b9d; min-height: 20px; margin-bottom: .6rem; font-style: italic; animation: fadeIn .3s ease; }
+
+    /* ── REVEAL ── */
+    .reveal { display: none; animation: fadeIn .7s ease; }
+    .big-emoji    { font-size: 56px; display: block; animation: float 3s ease-in-out infinite, pop .6s ease; }
+    .reveal-title { font-size: 25px; font-weight: 700; color: #d63384; margin: .5rem 0; animation: glow 2.5s ease-in-out infinite; }
+    .msg-box {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #ffcce0;
+      padding: 1.1rem 1.25rem;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #5c2d6e;
+      text-align: left;
+      margin: 1rem 0;
+      white-space: pre-line;
+    }
+
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="card" id="mainCard">
+    <!-- Ganti "lagu.mp3" dengan nama file musikmu (harus 1 folder sama file HTML-nya) -->
+  <audio id="bgMusic" loop>
+  <source src="lagu.mp3" type="audio/mpeg"/>
+  </audio>
+  <!-- Sparkle dekorasi -->
+  <span class="sparkle" style="top:12px;left:18px;animation-delay:0s">✨</span>
+  <span class="sparkle" style="top:14px;right:22px;animation-delay:.8s">✨</span>
+  <span class="sparkle" style="bottom:70px;left:14px;animation-delay:1.4s">⭐</span>
+  <span class="sparkle" style="bottom:80px;right:18px;animation-delay:.4s">🌸</span>
+
+  <!-- ═══ STAGE 1: Input nama ═══ -->
+  <div id="stageInput">
+    <span style="font-size:46px;display:block;margin-bottom:.5rem">🎂</span>
+    <div class="stage-title">Ada Hadiah Buat Kamu!</div>
+    <div class="stage-sub">tapi harus diklaim dulu ya... 😏</div>
+    <input class="name-input" id="nameIn" placeholder="Nama kamu siapa? 🌸" maxlength="25"/>
+    <button class="btn" onclick="startGame()">Klaim Hadiah →</button>
+  </div>
+
+  <!-- ═══ STAGE 2: Game ═══ -->
+  <div id="stageGame" style="display:none">
+    <div class="stage-title">Tangkap tombol ini! 😈</div>
+    <div class="stage-sub">klik <b id="needLbl">5</b>x buat buka hadiahnya</div>
+
+    <div class="taunt" id="tauntMsg">Hehe, kalau bisa tangkap~ 😝</div>
+
+    <div class="game-area" id="gameArea"
+         onmousemove="dodgeMove(event)"
+         onclick="missClick(event)">
+      <button class="dodge-btn" id="dodgeBtn" onclick="catchBtn(event)">Klik Aku! 🎁</button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progFill" style="width:0%"></div>
+    </div>
+    <div class="score-txt">
+      Tertangkap: <span id="catchCount">0</span> / <span id="needLbl2">5</span> kali
+    </div>
+  </div>
+
+  <!-- ═══ STAGE 3: Reveal ═══ -->
+  <div class="reveal" id="stageReveal">
+    <span class="big-emoji">🎉</span>
+    <!-- Ganti "foto.jpg" dengan nama file fotomu (harus 1 folder sama file HTML-nya) -->
+    <img src="foto.png" alt=""
+        style="width:100%;max-height:200px;object-fit:cover;border-radius:16px;margin-bottom:1rem;border:2px solid #ffb3c8;"/>
+    <div class="reveal-title" id="revTitle">Selamat Ulang Tahun!</div>
+    <div style="font-size:13px;color:#e91e8c99;margin-bottom:.5rem">untuk seseorang yang luar biasa 💌</div>
+    <div class="msg-box" id="revMsg"></div>
+    <div style="font-size:22px;margin:.5rem 0">💖💖💖</div>
+    <button class="btn" onclick="fireConfetti()">🎊 Rayakan Lagi!</button>
+    <button class="btn sec" onclick="resetAll()">← Mulai Ulang</button>
+  </div>
+
+</div>
+
+<script>
+  /* ══════════════════════════════════
+     KONFIGURASI — edit bagian ini!
+  ══════════════════════════════════ */
+  const NEED_CATCH = 5;  // berapa kali harus diklik
+
+  // Pesan ucapan — ganti sesuai keinginan!
+  const messages = [
+    n => `${n} sayang... makasih ya udah mau berjuang nangkep tombol annoying itu demi baca ucapan ini 😂\n\nSelamat ulang tahun! Semoga hari ini jadi hari yang paling bahagia, dan semua impianmu tahun ini bisa terwujud. Aku sayang kamu banget 💕`,
+    n => `${n}! Lihat deh, kamu udah buktiin kalau kamu pantang menyerah — bahkan buat nangkep tombol kurang ajar pun kamu bisa 😂\n\nSerius deh, semoga di ulang tahunmu ini kamu selalu sehat, bahagia, dan makin berkembang. Tetap jadi yang terbaik ya! 🌸`,
+    n => `Halo ${n}! Capek nggak nangkep tombolnya? Hehe maap ya... tapi itulah sedikit gambaran betapa kamu itu worth it diperjuangin 💕\n\nSelamat ulang tahun! Semoga tahun ini penuh kebahagiaan, kejutan manis, dan hal-hal yang bikin kamu senyum terus! 🎂`,
+  ];
+
+  /* ══════════════════════════════════
+     LOGIKA GAME
+  ══════════════════════════════════ */
+  let playerName = '', catchScore = 0, btnX = 50, btnY = 50, taunting = false;
+
+  const taunts = [
+    "Hehe, kalau bisa tangkap~ 😝",
+    "Kurang dikit lagi... eh kabur! 🏃",
+    "Lambat banget sih! 😂",
+    "Yah meleset lagi wkwk 👀",
+    "Semangat! Dikit lagi~ 💪",
+    "Serius deh, aku gampang kok... 😏",
+    "Hampir! Sayang banget 😈",
+    "Masa nggak bisa? 🤭",
+    "Harusnya kamu bisa, ayo! 🌸",
+  ];
+
+  const kudos = [
+    "Yee berhasil satu! 🎉",
+    "Oke oke, lumayan 😤",
+    "Wah bisa juga! Lanjut~ 😤",
+    "Hampir nih, semangat! 💪",
+    "Satu lagi! Jangan nyerah!",
+  ];
+
+  function startGame() {
+    const n = document.getElementById('nameIn').value.trim();
+    playerName = n || 'Sayang';
+    document.getElementById('needLbl').textContent  = NEED_CATCH;
+    document.getElementById('needLbl2').textContent = NEED_CATCH;
+    document.getElementById('stageInput').style.display = 'none';
+    document.getElementById('stageGame').style.display  = 'block';
+    placeBtnRandom();
+  }
+
+  function placeBtnRandom() {
+    const area = document.getElementById('gameArea');
+    const btn  = document.getElementById('dodgeBtn');
+    const aw = area.offsetWidth, ah = area.offsetHeight;
+    const bw = btn.offsetWidth  || 120, bh = btn.offsetHeight || 42;
+    btnX = Math.random() * (aw - bw - 16) + 8;
+    btnY = Math.random() * (ah - bh - 16) + 8;
+    btn.style.left = btnX + 'px';
+    btn.style.top  = btnY + 'px';
+  }
+
+  function dodgeMove(e) {
+    const area = document.getElementById('gameArea');
+    const btn  = document.getElementById('dodgeBtn');
+    const rect = area.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const aw = area.offsetWidth, ah = area.offsetHeight;
+    const bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 42;
+    const cx = btnX + bw/2, cy = btnY + bh/2;
+    const dx = mx - cx, dy = my - cy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 85) {
+      const angle = Math.atan2(dy, dx);
+      let nx = btnX - Math.cos(angle) * 95;
+      let ny = btnY - Math.sin(angle) * 95;
+      nx = Math.max(4, Math.min(aw - bw - 4, nx));
+      ny = Math.max(4, Math.min(ah - bh - 4, ny));
+      btnX = btnX * 0.35 + nx * 0.65;
+      btnY = btnY * 0.35 + ny * 0.65;
+      btn.style.left = btnX + 'px';
+      btn.style.top  = btnY + 'px';
+      if (!taunting) showTaunt(taunts);
+    }
+  }
+
+  function missClick(e) {
+    if (e.target.id === 'dodgeBtn') return;
+    showTaunt(taunts);
+    const btn = document.getElementById('dodgeBtn');
+    btn.style.animation = 'none';
+    void btn.offsetWidth;
+    btn.style.animation = 'shake .4s ease';
+    setTimeout(() => { btn.style.animation = 'wiggle 2s ease-in-out infinite'; }, 450);
+  }
+
+  function catchBtn(e) {
+    e.stopPropagation();
+    catchScore++;
+    document.getElementById('catchCount').textContent = catchScore;
+    document.getElementById('progFill').style.width = (catchScore / NEED_CATCH * 100) + '%';
+
+    if (catchScore < NEED_CATCH) {
+      showTaunt(kudos);
+      placeBtnRandom();
+    } else {
+      showReveal();
+    }
+  }
+
+  function showTaunt(pool) {
+    taunting = true;
+    document.getElementById('tauntMsg').textContent = pool[Math.floor(Math.random() * pool.length)];
+    setTimeout(() => { taunting = false; }, 1300);
+  }
+
+  function showReveal() {
+    document.getElementById('stageGame').style.display = 'none';
+    const rev = document.getElementById('stageReveal');
+    rev.style.display = 'block';
+    document.getElementById('revTitle').textContent = `Selamat Ultah, ${playerName}! 🎂`;
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById('revMsg').textContent = msg(playerName);
+    fireConfetti();
+    // Putar musik saat hadiah terbuka
+    document.getElementById('bgMusic').play();
+  }
+
+  function fireConfetti() {
+    const card   = document.getElementById('mainCard');
+    const colors = ['#ff6b9d','#ffde59','#a29bfe','#00cec9','#fd79a8','#fdcb6e','#6c5ce7','#55efc4'];
+    for (let i = 0; i < 55; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.cssText = `left:${Math.random()*100}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*1.8}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'};`;
+        card.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      }, i * 35);
+    }
+  }
+
+  function resetAll() {
+    catchScore = 0;
+    document.getElementById('nameIn').value = '';
+    document.getElementById('catchCount').textContent = '0';
+    document.getElementById('progFill').style.width = '0%';
+    document.getElementById('tauntMsg').textContent = "Hehe, kalau bisa tangkap~ 😝";
+    document.getElementById('stageReveal').style.display = 'none';
+    document.getElementById('stageGame').style.display   = 'none';
+    document.getElementById('stageInput').style.display  = 'block';
+    // Hentikan musik saat reset
+    const m = document.getElementById('bgMusic');
+    m.pause();
+    m.currentTime = 0;
+
+  }
+</script>
+</body>
+</html>
